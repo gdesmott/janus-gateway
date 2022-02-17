@@ -218,7 +218,7 @@ int janus_rtp_header_extension_parse_audio_level(char *buf, int len, int id, gbo
 	/* a=extmap:1 urn:ietf:params:rtp-hdrext:ssrc-audio-level */
 	gboolean v = (byte & 0x80) >> 7;
 	int value = byte & 0x7F;
-	JANUS_LOG(LOG_DBG, "%02x --> v=%d, level=%d\n", byte, v, value);
+	//JANUS_LOG(LOG_DBG, "%02x --> v=%d, level=%d\n", byte, v, value);
 	if(vad)
 		*vad = v;
 	if(level)
