@@ -2427,6 +2427,14 @@ candidatedone:
 	return;
 }
 
+static gint
+cmp_seq (gconstpointer a, gconstpointer b) {
+  gint aa = GPOINTER_TO_UINT (a);
+  gint bb = GPOINTER_TO_UINT (b);
+
+  return aa - bb;
+}
+
 static void janus_ice_cb_nice_recv(NiceAgent *agent, guint stream_id, guint component_id, guint len, gchar *buf, gpointer ice) {
 	janus_ice_peerconnection *pc = (janus_ice_peerconnection *)ice;
 	if(!pc) {
@@ -3026,7 +3034,14 @@ static void janus_ice_cb_nice_recv(NiceAgent *agent, guint stream_id, guint comp
 						/* Check if we have the packet */
 						janus_rtp_packet *p = g_hash_table_lookup(retransmit_seqs, GUINT_TO_POINTER(seqnr));
 						if(p == NULL) {
+							GList *list, *l;
 							JANUS_LOG(LOG_HUGE, "[%"SCNu64"]   >> >> Can't retransmit packet %u, we don't have it...\n", handle->handle_id, seqnr);
+
+							list = g_hash_table_get_keys (retransmit_seqs);
+							list = g_list_sort (list, cmp_seq);
+							for (l = list; l; l = g_list_next (l)) {
+								JANUS_LOG(LOG_HUGE, "[%"SCNu64"]   >> >> Have %d\n", handle->handle_id, GPOINTER_TO_UINT (l->data));
+							}
 						} else {
 							/* Should we retransmit this packet? */
 							if((p->last_retransmit > 0) && (now-p->last_retransmit < MAX_NACK_IGNORE)) {
