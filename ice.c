@@ -4723,6 +4723,12 @@ static gboolean janus_ice_outgoing_traffic_handle(janus_ice_handle *handle, janu
 						/* Insert in the table too, for quick lookup */
 			JANUS_LOG(LOG_HUGE, "CCC hash %p insert %d\n", medium->retransmit_seqs, seq);
 						g_hash_table_insert(medium->retransmit_seqs, GUINT_TO_POINTER(seq), p);
+					} else if (pkt->retransmission) {
+						janus_rtp_header *header = (janus_rtp_header *)pkt->data;
+						guint16 seq = ntohs(header->seq_number);
+						JANUS_LOG(LOG_HUGE, "aaaa hash %p not inserted %d\n", medium->retransmit_seqs, seq);
+						janus_ice_free_rtp_packet(p);
+
 					} else {
 						janus_ice_free_rtp_packet(p);
 					}
