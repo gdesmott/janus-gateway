@@ -644,6 +644,7 @@ static void janus_cleanup_nack_buffer(gint64 now, janus_ice_peerconnection *pc, 
 				/* Remove from hashtable too */
 				janus_rtp_header *header = (janus_rtp_header *)p->data;
 				guint16 seq = ntohs(header->seq_number);
+			        JANUS_LOG(LOG_HUGE, "AAA hash %p remove %d\n", medium->retransmit_seqs, seq);
 				g_hash_table_remove(medium->retransmit_seqs, GUINT_TO_POINTER(seq));
 				/* Free the packet */
 				janus_ice_free_rtp_packet(p);
@@ -1860,6 +1861,7 @@ static void janus_ice_peerconnection_medium_free(const janus_refcount *medium_re
 			/* Remove from hashtable too */
 			janus_rtp_header *header = (janus_rtp_header *)p->data;
 			guint16 seq = ntohs(header->seq_number);
+			JANUS_LOG(LOG_HUGE, "BBB hash %p remove %d\n", medium->retransmit_seqs, seq);
 			g_hash_table_remove(medium->retransmit_seqs, GUINT_TO_POINTER(seq));
 			/* Free the packet */
 			janus_ice_free_rtp_packet(p);
@@ -3035,7 +3037,7 @@ static void janus_ice_cb_nice_recv(NiceAgent *agent, guint stream_id, guint comp
 						janus_rtp_packet *p = g_hash_table_lookup(retransmit_seqs, GUINT_TO_POINTER(seqnr));
 						if(p == NULL) {
 							GList *list, *l;
-							JANUS_LOG(LOG_HUGE, "[%"SCNu64"]   >> >> Can't retransmit packet %u, we don't have it...\n", handle->handle_id, seqnr);
+							JANUS_LOG(LOG_HUGE, "[%"SCNu64"]   >> >> Can't retransmit packet %u, we don't have it... hash %p\n", handle->handle_id, seqnr, retransmit_seqs);
 
 							list = g_hash_table_get_keys (retransmit_seqs);
 							list = g_list_sort (list, cmp_seq);
@@ -4719,6 +4721,7 @@ static gboolean janus_ice_outgoing_traffic_handle(janus_ice_handle *handle, janu
 						}
 						g_queue_push_tail(medium->retransmit_buffer, p);
 						/* Insert in the table too, for quick lookup */
+			JANUS_LOG(LOG_HUGE, "CCC hash %p insert %d\n", medium->retransmit_seqs, seq);
 						g_hash_table_insert(medium->retransmit_seqs, GUINT_TO_POINTER(seq), p);
 					} else {
 						janus_ice_free_rtp_packet(p);
